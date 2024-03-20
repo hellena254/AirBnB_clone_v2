@@ -31,24 +31,33 @@ class DBStorage:
 
     def all(self, cls=None):
         """Query objects fro current db session"""
-        obj_dict = {}
-        if cls:
-            objs = self.__session.query(cls).all()
-            for obj in objs:
-                key = "{}.{}".format(type(obj).__name__, obj.id)
-                obj_dict[key] = obj
+        obj_dict = dict()
+        classes = (User, State, City, Amenity, Place, Review)
+        if cls is None:
+            for class_typ in classes:
+                query = self.__session.query(class_typ)
+                for obj in query.all():
+                    obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                    obj_dict[obj_key] = obj
         else:
-            for i in [State, City, User, Place, Review, Amenity]:
-                objs = self.__session.query(i).all()
-                for obj in objs:
-                    key = "{}.{}".format(type(obj).__name__, obj.id)
-                    obj_dict[key] = obj
+            query = self.__session.query(cls)
+            for obj in query.all():
+                obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
+                obj_dict[obj_key] = obj
         return obj_dict
 
 
     def new(self, obj):
         """Add the object to the current databse session"""
-        self.__session.add(obj)
+        if obj is not None:
+            try:
+                self.__session.add(obj)
+                self.__session.flush()
+                self.__session.refresh(obj)
+            except Exception as exception:
+                self.__session.rollback()
+                raise exception
+
 
     def save(self):
         """Commit all changes to the current db session"""
