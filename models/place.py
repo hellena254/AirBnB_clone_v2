@@ -9,16 +9,14 @@ from models.review import Review
 from models.amenity import Amenity
 
 
-#place_amenity = Table(
-#    Base.metadata,
-#   Column('place_id', String(60), ForeignKey('places.id'), nullable=False, primary_key=True),
-#   Column('amenity_id', String(60), ForeignKey('amenities.id'), nullable=False, primary_key=True)
-#)
+# Define the association table for many-to-many relationship
+place_amenity = Table(
+    'place_amenity',
+    Base.metadata,
+    Column('place_id', String(60), ForeignKey('places.id'), primary_key=True),
+    Column('amenity_id', String(60), ForeignKey('amenities.id'), primary_key=True)
+)
 
-
-"""
-Represents the many to many relationship table between Place and Amenity records.
-"""
 
 
 class Place(BaseModel, Base):
@@ -37,3 +35,27 @@ class Place(BaseModel, Base):
     longitude = Column(Float, nullable=True)
 #    amenity_ids = []
     reviews = relationship('Review', cascade="all, delete, delete-orphan", backref='place')
+
+    # For DBStorage
+    amenities = relationship(
+        "Amenity",
+        secondary=place_amenity,
+        viewonly=False
+    )
+
+    # For FileStorage
+    @property
+    def amenities(self):
+        """Getter attribute for amenities"""
+        amenities_list = []
+        for amenity_id in self.amenity_ids:
+            amenity = models.storage.get(Amenity, amenity_id)
+            if amenity:
+                amenities_list.append(amenity)
+        return amenities_list
+
+    @amenities.setter
+    def amenities(self, amenity):
+        """Setter attribute for amenities"""
+        if isinstance(amenity, Amenity):
+            self.amenity_ids.append(amenity.id)
