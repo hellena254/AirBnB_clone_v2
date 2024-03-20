@@ -7,9 +7,9 @@ from sqlalchemy.orm import relationship
 
 class Amenity(BaseModel, Base):
     """ The Amenity class, contains information about amenities """
-    __tablename__ = 'amenities'  # Table name in the database
+    __tablename__ = 'amenities'
 
-    name = Column(String(128), nullable=False)  # Name column, cannot be null
+    name = Column(String(128), nullable=False)
 
     # Relationship with Place class, many-to-many
     place_amenities = relationship(

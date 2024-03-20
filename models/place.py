@@ -33,8 +33,7 @@ class Place(BaseModel, Base):
     price_by_night = Column(Integer, nullable=False, default=0)
     latitude = Column(Float, nullable=True)
     longitude = Column(Float, nullable=True)
-#    amenity_ids = []
-    reviews = relationship('Review', cascade="all, delete, delete-orphan", backref='place')
+    reviews = relationship('Review', cascade="all, delete", backref='place')
 
     # For DBStorage
     amenities = relationship(
