@@ -16,20 +16,19 @@ class DBStorage:
     __engine = None
     __session = None
 
-
     def __init__(self):
         """Initializing DBStorage instance"""
-        user = os.getenv('HBNB_MYSQL_USER')
-        password = os.getenv('HBNB_MYSQL_PWD')
-        host = os.getenv('HBNB_MYSQL_HOST')
-        db_name = os.getenv('HBNB_MYSQL_DB')
-        env = os.getenv('HBNB_ENV')
-        db_url = "mysql+mysqldb://{}:{}@{}:3306/{}".format(user, password, host, db_name)
-        self.__engine = create_engine(
-            db_url,
-            pool_pre_ping=True
-        )
-        if env == 'test':
+        HBNB_MYSQL_USER = getenv('HBNB_MYSQL_USER')
+        HBNB_MYSQL_PWD = getenv('HBNB_MYSQL_PWD')
+        HBNB_MYSQL_HOST = getenv('HBNB_MYSQL_HOST')
+        HBNB_MYSQL_DB = getenv('HBNB_MYSQL_DB')
+        HBNB_ENV = getenv('HBNB_ENV')
+        self.__engine = create_engine('mysql+mysqldb://{}:{}@{}/{}'.
+                                      format(HBNB_MYSQL_USER,
+                                             HBNB_MYSQL_PWD,
+                                             HBNB_MYSQL_HOST,
+                                             HBNB_MYSQL_DB))
+        if HBNB_ENV == "test":
             Base.metadata.drop_all(self.__engine)
 
 
@@ -37,30 +36,18 @@ class DBStorage:
         """Query objects fro current db session"""
         obj_dict = dict()
         classes = (User, State, City, Amenity, Place, Review)
-        if cls is None:
-            for cls_type in classes:
-                query = self.__session.query(cls_type)
-                for obj in query.all():
-                    obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-                    obj_dict[obj_key] = obj
-        else:
-            query = self.__session.query(cls)
-            for obj in query.all():
-                obj_key = '{}.{}'.format(obj.__class__.__name__, obj.id)
-                obj_dict[obj_key] = obj
-        return obj_dict
+        for cls in classes:
+            if i is None or i is classes[cls] or i is cls:
+                objs = self.__session.query(classes[cls]).all()
+                for obj in objs:
+                    key = obj.__class__.__name__ + '.' + obj.id
+                    obj_dict[key] = obj
+        return (obj_dict)
 
 
     def new(self, obj):
         """Add the object to the current databse session"""
-        if obj is not None:
-            try:
-                self.__session.add(obj)
-                self.__session.flush()
-                self.__session.refresh(obj)
-            except Exception as ex:
-                self.__session.rollback()
-                raise ex
+        self.__session.add(obj)
 
 
     def save(self):
