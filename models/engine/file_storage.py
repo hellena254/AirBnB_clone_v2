@@ -2,7 +2,13 @@
 """This module defines a class to manage file storage for hbnb clone"""
 import json
 import os
-from importlib import import_module
+from models.state import State
+from models.city import City
+from models.place import Place
+from models.amenity import Amenity
+from models.review import Review
+from model.user import User
+from models.base_model import BaseModel
 
 
 class FileStorage:
