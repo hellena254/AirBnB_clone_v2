@@ -33,7 +33,7 @@ def python_text(text="is cool"):
     return "Python " + text.replace('_', ' ')
 
 
-@app.route('/number/<int:n>' strict_slashes=False)
+@app.route('/number/<int:n>', strict_slashes=False)
 def display_number(n):
     """display only if n is an integer"""
     return "{:d} is a number".format(n)
